@@ -88,7 +88,7 @@ define gem(
 	exec { "gem->${name}":
 		path    => "/usr/local/bin:/usr/bin:/bin",
 		command => "${chruby_prefix}gem install ${gem_name}${source_opt}${user_opt}${docs_opt}",
-		unless  => "${chruby_prefix}gem query --installed ${gem_name}${version_opt}",
+		unless  => "${chruby_prefix}gem query --installed -n '^${gem_name}\$'${version_opt}",
 		user    => $user ? {
 			undef => "root",
 			default => $user
