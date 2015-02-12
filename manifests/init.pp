@@ -86,7 +86,15 @@ define gem(
 	}
 
 	if $user {
-		$homedir = homedir($user)
+		$_homedir = homedir($user)
+		if $_homedir == undef {
+			# User doesn't exist yet; presumably they'll get created before the
+			# gem gets installed, but since we need a HOME now, we'll make an
+			# assumption and hope for the best
+			$homedir = "/home/${user}"
+		} else {
+			$homedir = $_homedir
+		}
 	} else {
 		$homedir = homedir("root")
 	}
@@ -95,7 +103,7 @@ define gem(
 		path        => "/usr/local/bin:/usr/bin:/bin",
 		command     => "${chruby_prefix}gem install ${gem_name}${version_opt}${source_opt}${user_opt}${docs_opt}",
 		unless      => "${chruby_prefix}gem query --installed -n '^${gem_name}\$'${version_opt}",
-		environment => "HOME=${homedir}",
+		environment => "HOME='${homedir}'",
 		user        => $user ? {
 			undef => "root",
 			default => $user
